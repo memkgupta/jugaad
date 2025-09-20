@@ -1,3 +1,4 @@
+import axios from "axios";
 import express from "express";
 import multer from "multer";
 import path from "path";
@@ -70,16 +71,7 @@ app.post("/new-valid-submission", (req, res) => {
   res.json({ status: `Message broadcasted to ${sessions.length} sessions` });
 });
 
-// ---- Example: Broadcast manually ----
-app.post("/broadcast", (req, res) => {
-  const { message } = req.body;
 
-  sessions.forEach(client => {
-    client.write(`data: ${JSON.stringify({ message })}\n\n`);
-  });
-
-  res.json({ status: `Broadcasted to ${sessions.length} sessions` });
-});
 
 // ---- Form + Image Upload ----
 app.post("/fuck-shiven", upload.single("image"), (req, res) => {
@@ -92,7 +84,19 @@ app.post("/fuck-shiven", upload.single("image"), (req, res) => {
     }
 
     // later: call AI model here with `file.path`
+    try{
+      const apiRes =  axios.post(`http://localhost:5000/api/process-citizen-report`,{
 
+      },{})
+      const dataToBeSent = apiRes.data.data;
+sessions.forEach(client => {
+    client.write(`data: ${JSON.stringify({ dataToBeSent })}\n\n`);
+  });
+    }
+    catch(error)
+    {
+
+    }
     res.json({
       message: "Form data + image received successfully ✅",
       data: {
